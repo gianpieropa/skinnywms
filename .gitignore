@@ -5,3 +5,4 @@ __pycache__/
 skinnywms.egg-info/
 meta.xml
 /venv/
+.idea
