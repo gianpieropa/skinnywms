@@ -14,9 +14,16 @@ from flask import Flask, request, Response, render_template, send_file, jsonify
 from .server import WMSServer
 from .plot.magics import Plotter, Styler
 from .data.fs import Availability
+from flask_cors import CORS, cross_origin
 
 
 application = Flask(__name__)
+
+cors = CORS(application)
+
+application.config['CORS_ORIGINS'] = ['http://localhost:8888']
+
+application.config['CORS_HEADERS'] = 'Content-Type'
 
 demo = os.path.join(os.path.dirname(__file__), "testdata", "sfc.grib")
 
@@ -34,7 +41,7 @@ parser.add_argument(
 parser.add_argument(
     "--style", default="", help="Path to a directory where to find the styles"
 )
-parser.add_argument("--host", default="127.0.0.1", help="Hostname")
+parser.add_argument("--host", default="0.0.0.0", help="Hostname")
 parser.add_argument("--port", default=5000, help="Port number")
 parser.add_argument(
     "--baselayer", default="", help="Path to a directory where to find the baselayer"
