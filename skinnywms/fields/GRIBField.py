@@ -21,9 +21,12 @@ class GRIBField(datatypes.Field):
         self.index = index
         self.mars = grib.mars_request
 
-        self.time = grib.valid_date
+        if grib.levtype == "sv":
+            self.time = grib.base_date
+        else:
+            self.time = grib.valid_date
 
-        if grib.levtype == "sfc":
+        if grib.levtype == "sfc" or grib.levtype == "sv":
             self.name = grib.shortName
             self.title = grib.name
         else:
@@ -34,9 +37,10 @@ class GRIBField(datatypes.Field):
 
         # Optimisation
         self.styles = context.stash.get(key)
+        print("styles",self.styles)
         if self.styles is None:
             self.styles = context.stash[key] = context.styler.grib_styles(
-                self, grib, path, index
+                self, grib, path, index,grib.levtype 
             )
 
     def render(self, context, driver, style, legend={}):
