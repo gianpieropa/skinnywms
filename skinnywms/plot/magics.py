@@ -364,7 +364,9 @@ class Plotter(datatypes.Plotter):
                 ),
             ]
 
-            contour = layer.style(style,)
+            contour = layer.style(
+                style,
+            )
 
             args += layer.render(
                 context, macro, contour, {"legend": "on", "contour_legend_only": True}
@@ -460,9 +462,11 @@ class Styler(datatypes.Styler):
 
         return [MagicsWebStyle(**s) for s in styles.get("styles", [])]
 
-    def grib_styles(self, field, grib, path, index):
+    def grib_styles(self, field, grib, path, index, levtype=None):
         with LOCK:
+            
             try:
+                print(field)
                 styles = macro.wmsstyles(
                     macro.mgrib(
                         grib_input_file_name=path, grib_field_position=index + 1
@@ -472,7 +476,6 @@ class Styler(datatypes.Styler):
             except Exception as e:
                 self.log.exception("grib_styles: Error: %s", e)
                 styles = {}
-
         return [MagicsWebStyle(**s) for s in styles.get("styles", [])]
 
     def contours(self, field, driver, style, legend={}):

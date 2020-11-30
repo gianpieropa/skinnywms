@@ -88,6 +88,35 @@ class RegularLL(Regular):
         )
 
 
+class SpaceView(Regular):
+    def cache_key(self, grib):
+        return (
+            grib.numberOfDataPoints,
+            grib.latitudeOfFirstGridPointInDegrees,
+            grib.latitudeOfLastGridPointInDegrees,
+            grib.Nj,
+            grib.longitudeOfFirstGridPointInDegrees,
+            grib.longitudeOfLastGridPointInDegrees,
+            grib.Ni,
+        )
+
+    def latitudes(self, grib):
+        assert grib.scanningMode == 0
+        return np.linspace(
+            grib.latitudeOfFirstGridPointInDegrees,
+            grib.latitudeOfLastGridPointInDegrees,
+            grib.Nj,
+        )
+
+    def longitudes(self, grib):
+        assert grib.scanningMode == 0
+        return np.linspace(
+            grib.longitudeOfFirstGridPointInDegrees,
+            grib.longitudeOfLastGridPointInDegrees,
+            grib.Ni,
+        )
+
+
 class RegularGG(Regular):
     def cache_key(self, grib):
         return (
@@ -240,6 +269,7 @@ GRID_TYPES = {
     "reduced_ll": ReducedLL(),
     "reduced_gg": ReducedGG(),
     "rotated_ll": RegularLL,  # For now, we do not  make use of this information .
+    "space_view": SpaceView(),
 }
 
 
@@ -290,7 +320,7 @@ LEVEL_TYPE_CODES = {
     111: ModelLevel(),  # 111 ml Eta level
 }
 
-LEVEL_TYPES = {"pl": PressureLevel(), "sfc": SingleLevel(), "ml": ModelLevel()}
+LEVEL_TYPES = {"pl": PressureLevel(), "sfc": SingleLevel(), "ml": ModelLevel(), "sv":SingleLevel()}
 
 
 class GribField(object):
@@ -312,6 +342,9 @@ class GribField(object):
             raise Exception(
                 "Unsupported grid type '{}' in grib {}".format(self.gridType, path)
             )
+
+        if self.gridType == "space_view":
+            self.levtype = "sv"
 
         try:
             # try mapping by name

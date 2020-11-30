@@ -25,7 +25,7 @@ application.config['CORS_ORIGINS'] = ['http://localhost:8888']
 
 application.config['CORS_HEADERS'] = 'Content-Type'
 
-demo = os.path.join(os.path.dirname(__file__), "testdata", "sfc.grib")
+demo = os.path.join(os.path.dirname(__file__), "testdata")
 
 demo = os.environ.get("SKINNYWMS_DATA_PATH", demo)
 
