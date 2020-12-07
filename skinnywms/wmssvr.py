@@ -14,16 +14,9 @@ from flask import Flask, request, Response, render_template, send_file, jsonify
 from .server import WMSServer
 from .plot.magics import Plotter, Styler
 from .data.fs import Availability
-from flask_cors import CORS, cross_origin
 
 
 application = Flask(__name__)
-
-cors = CORS(application)
-
-application.config['CORS_ORIGINS'] = ['http://localhost:8888']
-
-application.config['CORS_HEADERS'] = 'Content-Type'
 
 demo = os.path.join(os.path.dirname(__file__), "testdata")
 
@@ -41,6 +34,11 @@ parser.add_argument(
 parser.add_argument(
     "--style", default="", help="Path to a directory where to find the styles"
 )
+
+parser.add_argument(
+    "--user_style", default="", help="Path to a json file containing the style to use"
+)
+
 parser.add_argument("--host", default="0.0.0.0", help="Hostname")
 parser.add_argument("--port", default=5000, help="Port number")
 parser.add_argument(
@@ -58,7 +56,10 @@ args = parser.parse_args()
 if args.style != "":
     os.environ["MAGICS_STYLE_PATH"] = args.style + ":ecmwf"
 
-server = WMSServer(Availability(args.path), Plotter(args.baselayer), Styler())
+if args.user_style != "":
+    os.environ["MAGICS_USER_STYLE_PATH"] =  args.user_style
+
+server = WMSServer(Availability(args.path), Plotter(args.baselayer), Styler(args.user_style))
 
 
 server.magics_prefix = args.magics_prefix

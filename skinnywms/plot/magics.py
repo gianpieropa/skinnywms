@@ -11,6 +11,7 @@ import mimetypes
 import os
 import threading
 import pprint
+import json
 
 from Magics import macro
 
@@ -364,9 +365,7 @@ class Plotter(datatypes.Plotter):
                 ),
             ]
 
-            contour = layer.style(
-                style,
-            )
+            contour = layer.style(style,)
 
             args += layer.render(
                 context, macro, contour, {"legend": "on", "contour_legend_only": True}
@@ -447,7 +446,20 @@ class Styler(datatypes.Styler):
 
     log = logging.getLogger(__name__)
 
+    def __init__(self,  user_style=None):
+        self.user_style = None
+        if user_style:
+            try: 
+                with open(user_style, "r") as f:
+                    self.user_style = json.load(f)
+                    if "name" not in self.user_style:
+                        self.user_style["name"] = "user_style"
+            except:
+                self.user_style = None
+
     def netcdf_styles(self, field, ncvar, path, variable):
+        if self.user_style:
+            return [MagicsWebStyle(self.user_style["name"])]
         with LOCK:
             try:
                 styles = macro.wmsstyles(
@@ -462,11 +474,12 @@ class Styler(datatypes.Styler):
 
         return [MagicsWebStyle(**s) for s in styles.get("styles", [])]
 
-    def grib_styles(self, field, grib, path, index, levtype=None):
+    def grib_styles(self, field, grib, path, index):
+        if self.user_style:
+            return [MagicsWebStyle(self.user_style["name"])]
+
         with LOCK:
-            
             try:
-                print(field)
                 styles = macro.wmsstyles(
                     macro.mgrib(
                         grib_input_file_name=path, grib_field_position=index + 1
@@ -476,9 +489,14 @@ class Styler(datatypes.Styler):
             except Exception as e:
                 self.log.exception("grib_styles: Error: %s", e)
                 styles = {}
+
         return [MagicsWebStyle(**s) for s in styles.get("styles", [])]
 
     def contours(self, field, driver, style, legend={}):
+
+        if self.user_style:
+            return driver.mcont(self.user_style)
+
         if style is None:
             return driver.mcont()
 
