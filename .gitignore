@@ -6,3 +6,4 @@ skinnywms.egg-info/
 meta.xml
 /venv/
 .idea
+/skinnywms/testdata/

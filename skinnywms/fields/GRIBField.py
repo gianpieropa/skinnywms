@@ -37,10 +37,9 @@ class GRIBField(datatypes.Field):
 
         # Optimisation
         self.styles = context.stash.get(key)
-        print("styles",self.styles)
         if self.styles is None:
             self.styles = context.stash[key] = context.styler.grib_styles(
-                self, grib, path, index,grib.levtype 
+                self, grib, path, index
             )
 
     def render(self, context, driver, style, legend={}):

@@ -42,7 +42,9 @@ class TmpFile:
 
     def content(self):
         with open(self.fname, "rb") as f:
-            return f.read()
+            c = f.read()
+            os.close(f)
+        return c
 
     def cleanup(self):
         LOG.debug("Deleting %s" % self.fname)
@@ -196,13 +198,15 @@ class WMSServer:
                 layer = self.availability.layer(name, dims)
             except errors.LayerNotDefined:
                 layer = self.plotter.layer(name)
-            print(layer)
+
             layer_objs.append(layer)
 
         # Interpret the BBox
+
         bbox = bounding_box.get("{}_{}".format(version, crs), (lambda x: x))(bbox)
 
         LOG.debug("->{}_{}".format(version, crs))
+
         mime_type, path = self.plotter.plot(
             self,
             output,
@@ -254,7 +258,7 @@ class WMSServer:
 
         layers = list(self.availability.layers())
         LOG.info("Layers are %s", layers)
-        print(layers)
+
         if self.availability.auto_add_plotter_layers:
             layers += list(self.plotter.layers())
 
