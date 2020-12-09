@@ -37,6 +37,10 @@ def _transparent_norm(v):
         return False
     raise ValueError("Expected 'TRUE' or 'FALSE'")
 
+def _get_grades(v):
+    v = v.upper()
+    grades = [float(f) for f in v.split(",")]
+    return grades
 
 # Known HTTP query parameters for WMS.
 #
@@ -93,6 +97,8 @@ _WMS_KNOWN_PARAMS = {
         ("transparent", False, _transparent_norm),
         ("version", True, None),
         ("width", True, int),
+        ("dim_grades", False, _get_grades),
+        ("dim_colors", False, lambda v: v.split(",")),
     ),
     ("getlegendgraphic", "1.1.1"): (
         ("exceptions", False, None),

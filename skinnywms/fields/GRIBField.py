@@ -42,7 +42,9 @@ class GRIBField(datatypes.Field):
                 self, grib, path, index
             )
 
-    def render(self, context, driver, style, legend={}):
+    def render(
+        self, context, driver, style, legend={}, dim_grades=None, dim_colors=None
+    ):
         data = []
         params = dict(
             grib_input_file_name=self.path, grib_field_position=self.index + 1
@@ -52,7 +54,9 @@ class GRIBField(datatypes.Field):
             style.adjust_grib_plotting(params)
 
         data.append(driver.mgrib(**params))
-        data.append(context.styler.contours(self, driver, style, legend))
+        data.append(
+            context.styler.contours(self, driver, style, legend, dim_grades,dim_colors)
+        )
 
         return data
 
