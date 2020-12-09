@@ -213,6 +213,8 @@ class Plotter(datatypes.Plotter):
         elevation=None,
         exceptions=None,
         time=None,
+        dim_grades=None,
+        dim_colors=None,
     ):
 
         lon_vertical = 0.0
@@ -296,7 +298,16 @@ class Plotter(datatypes.Plotter):
 
             for layer, style in zip(layers, styles):
                 style = layer.style(style)
-                args += layer.render(context, macro, style)
+                if dim_grades is not None and dim_colors is not None:
+                    args += layer.render(
+                        context,
+                        macro,
+                        style,
+                        dim_grades=dim_grades,
+                        dim_colors=dim_colors,
+                    )
+                else:
+                    args += layer.render(context, macro, style)
 
             if _macro:
                 return (
@@ -365,7 +376,9 @@ class Plotter(datatypes.Plotter):
                 ),
             ]
 
-            contour = layer.style(style,)
+            contour = layer.style(
+                style,
+            )
 
             args += layer.render(
                 context, macro, contour, {"legend": "on", "contour_legend_only": True}
@@ -446,10 +459,10 @@ class Styler(datatypes.Styler):
 
     log = logging.getLogger(__name__)
 
-    def __init__(self,  user_style=None):
+    def __init__(self, user_style=None):
         self.user_style = None
         if user_style:
-            try: 
+            try:
                 with open(user_style, "r") as f:
                     self.user_style = json.load(f)
                     if "name" not in self.user_style:
@@ -492,14 +505,29 @@ class Styler(datatypes.Styler):
 
         return [MagicsWebStyle(**s) for s in styles.get("styles", [])]
 
-    def contours(self, field, driver, style, legend={}):
+    def contours(
+        self, field, driver, style, legend={}, dim_grades=None, dim_colors=None
+    ):
 
         if self.user_style:
             return driver.mcont(self.user_style)
 
         if style is None:
             return driver.mcont()
-
+        #print(dim_grades, dim_colors)
+        if dim_grades is not None and dim_colors is not None:
+            return driver.mcont(
+                legend,
+                contour="off",
+                contour_hilo="off",
+                contour_level_selection_type="level_list",
+                contour_level_list=dim_grades,
+                contour_shade="on",
+                contour_shade_colour_method="list",
+                contour_shade_colour_list=dim_colors,
+                contour_shade_method="area_fill",
+                contour_label="off",
+            )
         return driver.mcont(
             legend,
             contour_automatic_setting="style_name",

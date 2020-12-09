@@ -314,6 +314,8 @@ class Plotter:
         exceptions=None,
         time=None,
         transparent=None,
+        dim_grades=None,
+        dim_colors=None,
     ):
         raise NotImplementedError
 
