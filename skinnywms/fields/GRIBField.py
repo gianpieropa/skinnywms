@@ -12,7 +12,6 @@ from skinnywms import grib_bindings
 
 
 class GRIBField(datatypes.Field):
-
     log = logging.getLogger(__name__)
 
     def __init__(self, context, path, grib, index):
@@ -26,7 +25,10 @@ class GRIBField(datatypes.Field):
         else:
             self.time = grib.valid_date
 
-        if grib.levtype == "sfc" or grib.levtype == "sv":
+        if grib.levtype == "sv":
+            self.name = "%s_%s" % (grib.shortName, grib.scaledValueOfCentralWaveNumber)
+            self.title = "%s_%s" % (grib.name, grib.scaledValueOfCentralWaveNumber)
+        elif grib.levtype == "sfc":
             self.name = grib.shortName
             self.title = grib.name
         else:
@@ -43,7 +45,7 @@ class GRIBField(datatypes.Field):
             )
 
     def render(
-        self, context, driver, style, legend={}, dim_grades=None, dim_colors=None
+            self, context, driver, style, legend={}, dim_grades=None, dim_colors=None
     ):
         data = []
         params = dict(
@@ -55,7 +57,7 @@ class GRIBField(datatypes.Field):
 
         data.append(driver.mgrib(**params))
         data.append(
-            context.styler.contours(self, driver, style, legend, dim_grades,dim_colors)
+            context.styler.contours(self, driver, style, legend, dim_grades, dim_colors)
         )
 
         return data
@@ -77,7 +79,6 @@ class GRIBField(datatypes.Field):
 
 
 class GRIBReader:
-
     """Get WMS layers from a GRIB file."""
 
     log = logging.getLogger(__name__)
